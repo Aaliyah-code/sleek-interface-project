@@ -3,7 +3,6 @@ import { Search, Plus, Edit2, Trash2, Mail, Building, Briefcase } from "lucide-r
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { DataTable } from "@/components/ui/data-table";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -93,95 +92,6 @@ export default function EmployeesPage() {
   const getInitials = (name: string) =>
     name.split(" ").map((n) => n[0]).join("").toUpperCase();
 
-  const columns = [
-    {
-      key: "name",
-      header: "Employee",
-      render: (emp: Employee) => (
-        <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-accent/10 text-accent text-sm font-medium">
-              {getInitials(emp.name)}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="font-medium">{emp.name}</p>
-            <p className="text-sm text-muted-foreground">{emp.contact}</p>
-          </div>
-        </div>
-      ),
-    },
-    { key: "position", header: "Position" },
-    { key: "department", header: "Department" },
-    {
-      key: "salary",
-      header: "Salary",
-      render: (emp: Employee) => `R${emp.salary.toLocaleString()}`,
-    },
-    {
-      key: "actions",
-      header: "Actions",
-      render: (emp: Employee) => (
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(emp)}>
-            <Edit2 className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => handleDelete(emp)} className="text-destructive hover:text-destructive">
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
-      ),
-    },
-  ];
-
-  const renderCard = (emp: Employee) => (
-    <Card className="hover-lift">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-12 w-12">
-              <AvatarFallback className="bg-accent/10 text-accent font-semibold">
-                {getInitials(emp.name)}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="font-semibold">{emp.name}</p>
-              <p className="text-sm text-muted-foreground">{emp.position}</p>
-            </div>
-          </div>
-          <div className="flex gap-1">
-            <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(emp)}>
-              <Edit2 className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => handleDelete(emp)} className="text-destructive hover:text-destructive">
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-        
-        <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Building className="w-4 h-4" />
-            <span>{emp.department}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Mail className="w-4 h-4" />
-            <span className="truncate">{emp.contact}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Briefcase className="w-4 h-4" />
-            <span>{emp.employmentHistory}</span>
-          </div>
-        </div>
-        
-        <div className="mt-4 pt-4 border-t border-border">
-          <p className="text-lg font-bold text-accent">R{emp.salary.toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground">Monthly Salary</p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -201,14 +111,56 @@ export default function EmployeesPage() {
         </Button>
       </div>
 
-      {/* Table/Cards */}
-      <DataTable
-        data={filteredEmployees}
-        columns={columns}
-        keyExtractor={(emp) => emp.employeeId}
-        cardRender={renderCard}
-      />
-
+      {/* Employee Grid Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {filteredEmployees.map((emp) => (
+          <Card key={emp.employeeId} className="hover-lift">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-accent/10 text-accent text-sm font-semibold">
+                      {getInitials(emp.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-sm truncate">{emp.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{emp.position}</p>
+                  </div>
+                </div>
+                <div className="flex gap-0.5">
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenDialog(emp)}>
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => handleDelete(emp)}>
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="space-y-1.5 text-xs">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Building className="w-3.5 h-3.5" />
+                  <span>{emp.department}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Mail className="w-3.5 h-3.5" />
+                  <span className="truncate">{emp.contact}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Briefcase className="w-3.5 h-3.5" />
+                  <span>{emp.employmentHistory}</span>
+                </div>
+              </div>
+              
+              <div className="mt-3 pt-3 border-t border-border">
+                <p className="text-base font-bold text-accent">R{emp.salary.toLocaleString()}</p>
+                <p className="text-[10px] text-muted-foreground">Monthly Salary</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
       {/* Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-lg">

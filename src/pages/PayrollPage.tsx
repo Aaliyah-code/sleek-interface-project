@@ -101,51 +101,41 @@ export default function PayrollPage() {
 
   const renderCard = (p: EnrichedPayroll) => (
     <Card className="hover-lift">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-12 w-12">
-              <AvatarFallback className="bg-accent/10 text-accent font-semibold">
+      <CardContent className="p-3">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-accent/10 text-accent text-xs font-semibold">
                 {getInitials(p.employee.name)}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <p className="font-semibold">{p.employee.name}</p>
-              <p className="text-sm text-muted-foreground">{p.employee.position}</p>
+            <div className="min-w-0">
+              <p className="font-semibold text-sm truncate">{p.employee.name}</p>
+              <p className="text-xs text-muted-foreground truncate">{p.employee.position}</p>
             </div>
           </div>
+          <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setSelectedPayslip(p)}>
+            <FileText className="w-3 h-3 mr-1" />
+            View
+          </Button>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+        <div className="grid grid-cols-2 gap-2 text-xs">
           <div>
-            <p className="text-muted-foreground">Department</p>
-            <p className="font-medium">{p.employee.department}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Hours Worked</p>
+            <p className="text-muted-foreground">Hours</p>
             <p className="font-medium">{p.hoursWorked}h</p>
           </div>
           <div>
-            <p className="text-muted-foreground">Base Salary</p>
-            <p className="font-medium">R{p.employee.salary.toLocaleString()}</p>
-          </div>
-          <div>
             <p className="text-muted-foreground">Deductions</p>
-            <p className="font-medium text-destructive">
-              -R{(p.employee.salary - p.finalSalary).toLocaleString()}
-            </p>
+            <p className="font-medium text-destructive">-R{(p.employee.salary - p.finalSalary).toLocaleString()}</p>
           </div>
         </div>
 
-        <div className="pt-4 border-t border-border flex items-center justify-between">
+        <div className="mt-2 pt-2 border-t border-border flex items-center justify-between">
           <div>
-            <p className="text-2xl font-bold text-accent">R{p.finalSalary.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground">Final Salary</p>
+            <p className="text-lg font-bold text-accent">R{p.finalSalary.toLocaleString()}</p>
+            <p className="text-[10px] text-muted-foreground">Final Salary</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => setSelectedPayslip(p)}>
-            <FileText className="w-4 h-4 mr-1" />
-            View Payslip
-          </Button>
         </div>
       </CardContent>
     </Card>
