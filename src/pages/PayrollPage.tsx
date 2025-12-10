@@ -37,11 +37,39 @@ export default function PayrollPage() {
   const getInitials = (name: string) =>
     name.split(" ").map((n) => n[0]).join("").toUpperCase();
 
-  const handleDownloadPayslip = () => {
-    toast({
-      title: "Payslip Downloaded",
-      description: `Payslip for ${selectedPayslip?.employee.name} has been downloaded.`,
-    });
+  const handleDownloadPayslip = async () => {
+    if (!selectedPayslip || !payslipRef.current) {
+      toast({ title: "No payslip selected", description: "Please open a payslip first." });
+      return;
+    }
+
+    try {
+      const html2canvasModule = await import("html2canvas");
+      const html2canvas = html2canvasModule.default ?? html2canvasModule;
+      const { jsPDF } = await import("jspdf");
+
+      const element = payslipRef.current;
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF({ unit: "pt", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const margin = 20;
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
+      const fileName = `${selectedPayslip.employee.name.replace(/\s+/g, "_")}_payslip.pdf`;
+      pdf.save(fileName);
+
+      toast({
+        title: "Payslip Downloaded",
+        description: `Payslip for ${selectedPayslip.employee.name} downloaded.`,
+      });
+    } catch (error) {
+      console.error("Error generating payslip PDF:", error);
+      toast({ title: "Download failed", description: "Could not generate the PDF." });
+    }
   };
 
   const columns = [
@@ -203,23 +231,23 @@ export default function PayrollPage() {
 
       {/* Payslip Dialog */}
       <Dialog open={!!selectedPayslip} onOpenChange={() => setSelectedPayslip(null)}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="max-w-xs sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Digital Payslip</DialogTitle>
           </DialogHeader>
 
           {selectedPayslip && (
-            <div ref={payslipRef} className="space-y-6 py-4">
+            <div ref={payslipRef} className="space-y-4 py-2 sm:space-y-6 sm:py-4">
               {/* Company Header */}
               <div className="text-center pb-4 border-b border-border">
-                <h2 className="text-xl font-bold">ModernTech Solutions</h2>
-                <p className="text-sm text-muted-foreground">
+                <h2 className="text-lg sm:text-xl font-bold">ModernTech Solutions</h2>
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Monthly Payslip - {new Date().toLocaleDateString("en-ZA", { month: "long", year: "numeric" })}
                 </p>
               </div>
 
               {/* Employee Info */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                 <div>
                   <p className="text-muted-foreground">Employee Name</p>
                   <p className="font-medium">{selectedPayslip.employee.name}</p>
@@ -242,7 +270,7 @@ export default function PayrollPage() {
 
               {/* Earnings */}
               <div>
-                <h3 className="font-semibold mb-3">Earnings</h3>
+                <h3 className="font-semibold mb-2 text-sm sm:mb-3 sm:text-base">Earnings</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Basic Salary</span>
@@ -259,7 +287,7 @@ export default function PayrollPage() {
 
               {/* Deductions */}
               <div>
-                <h3 className="font-semibold mb-3">Deductions</h3>
+                <h3 className="font-semibold mb-2 text-sm sm:mb-3 sm:text-base">Deductions</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Leave Deductions ({selectedPayslip.leaveDeductions} hours)</span>
@@ -273,17 +301,17 @@ export default function PayrollPage() {
               <Separator />
 
               {/* Net Pay */}
-              <div className="bg-accent/10 rounded-lg p-4">
+              <div className="bg-accent/10 rounded-lg p-3 sm:p-4">
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold text-lg">Net Pay</span>
-                  <span className="text-2xl font-bold text-accent">
+                  <span className="font-semibold text-base sm:text-lg">Net Pay</span>
+                  <span className="text-xl sm:text-2xl font-bold text-accent">
                     R{selectedPayslip.finalSalary.toLocaleString()}
                   </span>
                 </div>
               </div>
 
               {/* Footer */}
-              <div className="text-center text-xs text-muted-foreground pt-4 border-t border-border">
+              <div className="text-center text-[10px] sm:text-xs text-muted-foreground pt-3 sm:pt-4 border-t border-border">
                 <p>This is a computer-generated payslip and does not require a signature.</p>
                 <p className="mt-1">Generated on {new Date().toLocaleDateString("en-ZA")}</p>
               </div>
